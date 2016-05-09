@@ -1,0 +1,62 @@
+img, embed, object, video {
+	max-width: 100%;
+}
+
+.container {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
+}
+
+.search, .list, .box, .footer {
+	width: 100%;
+}
+
+.map {
+	height: 100%;
+	width: 100%;
+}
+
+ul {
+	list-style-type: none;
+	text-align: left;
+}
+
+.layout {
+	border-style: solid;
+	border-color: red;
+	text-align: center;
+}
+/* 
+ * Extra small devices (phones, less than 768px)
+ * No media query since this is the default in Bootstrap
+*/
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991px) {
+	.layout {
+		border-style: solid;
+		border-color: blue;
+		text-align: center;
+	}
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199px) {
+	.layout {
+		border-style: solid;
+		border-color: green;
+		text-align: center;
+	}
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+	.layout {
+		border-style: solid;
+		border-color: orange;
+		text-align: center;
+	}
+}
+
