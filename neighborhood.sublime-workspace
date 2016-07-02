@@ -3,6 +3,10 @@
 	{
 		"selected_items":
 		[
+			[
+				"map",
+				"map"
+			]
 		]
 	},
 	"buffers":
@@ -11,27 +15,36 @@
 			"file": "index.html",
 			"settings":
 			{
-				"buffer_size": 1270,
+				"buffer_size": 1646,
 				"line_ending": "Unix",
 				"name": "<!DOCTYPE HTML>"
 			}
 		},
 		{
+			"contents": "	var PlaceData = [\n		{	name: \"NuLife Yoga\",\n			description: \"Yoga Studio\",\n			lat: \"37.324167\",\n			lng: \"-121.920274\",\n			address: \"25 Dana Avenue, San Jose, CA 95126\"\n		},\n\n		{	name: \"Rose Garden\",\n			description: \"Nice place to walk around\",\n			lat: \"37.3319\",\n			lng: \"-121.9286\",\n			address: \"Dana Avenue and Naglee Avenue, San Jose, CA 95126\"\n		},\n\n		{	name: \"Tee Nee Thai Restaurant\",\n			description: \"Cute place for Thai food\",\n			lat: \"37.333245\",\n			lng: \"-121.914273\",\n			address: \"1423 The Alameda, San Jose, CA 95126\"\n		},\n\n		{	name: \"Hoover Theater\",\n			description: \"Landmark theater in Hoover Middle School\",\n			lat: \"37.33261\",\n			lng: \"-121.92251\",\n			address: \"1635 Park Avenue, San Jose, CA 95126\"\n		},\n\n		{	name: \"White Shallot Restaurant\",\n			description:  \"One of our regular spots\",\n			lat: \"37.32336\",\n			lng: \"-121.95135\",\n			address: \"3143 Stevens Creek Blvd, San Jose, CA 95117\"\n		},\n\n		{	name: \"The Red Stag\",\n			description: \"Classic dive bar\",\n			lat: \"37.3240527\",\n			lng: \"-121.9219497\",\n			address: \"1711 W San Carlos St, San Jose, CA 95128\"\n		},\n\n		{	name:  \"Zanotto's Market\",\n			description: \"Neighborhood grocery store\",\n			lat: \"37.328218\",\n			lng: \"-121.931261\",\n			address: \"1970 Naglee Avenue, San Jose, CA 95126\"\n		},\n\n		{\n			name: \"Schuras Chocolate\",\n			description: \"Schurra's Fine Confections - Your Hometown Candy Store Since 1912. \",\n			lat: \"37.331503\",\n			lng: \"-121.90634\",\n			address: \"840 The Alameda, San Jose, CA 95126\"\n		}\n\n	];\n\n	var map;\n	var places = [];\n\n	function initMap() {\n		var mapOptions = {\n			center: new google.maps.LatLng(37.33,-121.93),\n			zoom: 15,\n			mapTypeControl: true,\n			mapTypeControlOptions: {style: google.maps.MapTypeControlStyle.DROPDOWN_MENU},\n			navigationControl: true,\n			mapTypeID: google.maps.MapTypeId.ROADMAP\n		};\n		map = new google.maps.Map(document.getElementById('map'), mapOptions);\n		for (m in PlaceData) {\n			var position = new google.maps.LatLng(PlaceData[m].lat, PlaceData[m].lng);\n			addMarker(position);\n		}\n	}\n\n	// Create marker and add it to the global marker array\n	function addMarker(location) {\n		var marker = new google.maps.Marker({\n			position: location,\n			map: map\n		});\n		places.push(marker);\n	}\n\n	function delMarker(id) {\n		console.log(\"Make marker \" +id+ \" invisible\");\n		places[id].setVisible(false);\n		console.log(places[id].getVisible());\n		places[id].setMap(map);\n	}\n\n	var viewModel = function() {\n		var self = this;\n\n		 var slideout = new Slideout({\n        	'panel': document.getElementById('panel'),\n        	'menu': document.getElementById('menu'),\n        	'padding': 256,\n        	'tolerance': 70\n      	});\n\n      	// Toggle button\n      	document.querySelector('.toggle-button').addEventListener('click', function() {\n        	slideout.toggle();\n      	});\n\n	// Thanks to Dave, AndrewR, LaneSeals et. al. on the Udacity forum https://discussions.udacity.com/t/filtering-my-list-of-locations-with-ko/38858/15\n	// I was having the exact same problem Dave faced with the .removeAll method implementation and this thread was a big help.\n	// I should also acknowledge Brandon Keepers http://opensoul.org/2011/06/23/live-search-with-knockoutjs/ for the original idea\n		self.placeArray = ko.observableArray(PlaceData);\n		self.query = ko.observable('');\n		self.place = ko.observable('-');\n		search = function(value) {\n			self.placeArray([]);\n			for(var x in PlaceData) {\n				if(PlaceData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0)\n					self.placeArray.push(PlaceData[x]);\n				else delMarker(x);\n			}\n		};\n		self.query.subscribe(search);\n\n		select = function(loc){\n			self.place(loc);\n			var myLatLng = new google.maps.LatLng(self.place().lat, self.place().lng);\n			var newCenter = new google.maps.LatLng(self.place().lat, self.place().lng);\n			map.panTo(newCenter);\n			marker.addListener('click', toggleBounce);\n\n			function toggleBounce() {\n				if (marker.getAnimation() !== null) {\n					marker.setAnimation(null);\n				} else {\n					marker.setAnimation(google.maps.Animation.BOUNCE);\n				}\n			}\n\n			marker.setMap(map);\n		};\n\n	};\n	//Calls the initializeMap() function when the page loads\n	window.addEventListener('load', initMap);\n\n	// Let's get this started\n	ko.applyBindings(new viewModel());",
 			"file": "js/app.js",
+			"file_size": 4230,
+			"file_write_time": 131084500520000000,
 			"settings":
 			{
-				"buffer_size": 1322,
-				"line_ending": "Unix",
-				"name": "// global for map"
+				"buffer_size": 4225,
+				"line_ending": "Unix"
 			}
 		},
 		{
 			"file": "css/neighborhood.css",
 			"settings":
 			{
-				"buffer_size": 981,
-				"line_ending": "Unix",
-				"name": "img, embed, object, video {"
+				"buffer_size": 1092,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "bower_components/slideout.js/index.css",
+			"settings":
+			{
+				"buffer_size": 457,
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -67,20 +80,23 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/thomasallen/Education/Udacity/Neighborhood"
+		"/Users/thomasallen/Education/Udacity/Neighborhood",
+		"/Users/thomasallen/Education/Udacity/Neighborhood/js"
 	],
 	"file_history":
 	[
-		"/Users/thomasallen/Education/Udacity/CatClicker/js/app.js_old",
+		"/Users/thomasallen/Education/Udacity/Neighborhood/js/app.js",
 		"/Users/thomasallen/Education/Udacity/CatClicker/js/app.js",
-		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/index.html",
-		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/js/helper.js",
 		"/Users/thomasallen/Education/Udacity/CatClicker/index.html",
+		"/Users/thomasallen/Education/Udacity/Neighborhood/css/neighborhood.css",
+		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/js/helper.js",
+		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/index.html",
+		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/css/style.css",
+		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/js/resumeBuilder.js",
+		"/Users/thomasallen/Education/Udacity/CatClicker/js/app.js_old",
 		"/Users/thomasallen/Education/Udacity/Neighborhood/neighborhood.sublime-project",
 		"/Users/thomasallen/Education/Udacity/CatClicker/js/model.js",
-		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/css/style.css",
 		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/js/resumeBuilder1.js",
-		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/js/resumeBuilder.js",
 		"/Users/thomasallen/Education/Udacity/InteractiveResume/frontend-nanodegree-resume-master/js/jQuery.js",
 		"/Users/thomasallen/Education/Udacity/ud989-school-attendance/index.html",
 		"/Users/thomasallen/Education/Udacity/ud989-school-attendance/js/app.js",
@@ -102,7 +118,7 @@
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 35.0
 	},
 	"find_in_files":
 	{
@@ -116,6 +132,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"San",
 			"locationFinder"
 		],
 		"highlight": true,
@@ -134,7 +151,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -143,27 +160,28 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1270,
+						"buffer_size": 1646,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1102,
-								1102
+								1279,
+								1279
 							]
 						],
 						"settings":
 						{
 							"auto_name": "<!DOCTYPE HTML>",
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 222.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -172,27 +190,27 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1322,
+						"buffer_size": 4225,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								976,
-								976
+								2851,
+								2932
 							]
 						],
 						"settings":
 						{
-							"auto_name": "// global for map",
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 0.0,
-						"translation.y": 405.0,
+						"translation.x": 44.0,
+						"translation.y": 1356.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -201,27 +219,57 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 981,
+						"buffer_size": 1092,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								258,
-								258
+								181,
+								181
 							]
 						],
 						"settings":
 						{
-							"auto_name": "img, embed, object, video {",
-							"syntax": "Packages/CSS/CSS.sublime-syntax"
+							"syntax": "Packages/CSS/CSS.sublime-syntax",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "bower_components/slideout.js/index.css",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 457,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CSS/CSS.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -304,7 +352,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 150.0,
+	"side_bar_width": 50.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

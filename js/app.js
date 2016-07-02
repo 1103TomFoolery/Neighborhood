@@ -59,7 +59,7 @@
 	];
 
 	var map;
-	var markers = [];
+	var places = [];
 
 	function initMap() {
 		var mapOptions = {
@@ -71,26 +71,60 @@
 			mapTypeID: google.maps.MapTypeId.ROADMAP
 		};
 		map = new google.maps.Map(document.getElementById('map'), mapOptions);
-		for (m in PlaceData) {
-			var position = new google.maps.LatLng(PlaceData[m].lat, PlaceData[m].lng);
-			addMarker(position);
-		}
+		addMarkers();
+		// for (m in PlaceData) {
+		// 	var position = new google.maps.LatLng(PlaceData[m].lat, PlaceData[m].lng);
+		// 	addMarker(position);
+		// }
 	}
 
 	// Create marker and add it to the global marker array
-	function addMarker(location) {
-		var marker = new google.maps.Marker({
-			position: location,
-			map: map
-		});
-		markers.push(marker);
+	function addMarkers() {
+		var infoWindow = new google.maps.InfoWindow();
+		for (m in PlaceData) {
+			var marker = new google.maps.Marker({
+				position: new google.maps.LatLng(PlaceData[m].lat, PlaceData[m].lng),
+				map: map,
+				title: PlaceData[m].name,
+				draggable: false,
+				animation: google.maps.Animation.DROP,
+				info: PlaceData[m].description,
+			});
+//			marker.addListener('click', toggleBounce);
+			// google.maps.event.addListener(marker, 'click', toggleBounce);
+			places.push(marker);
+
+			(function (m) {
+				google.maps.event.addListener(places[m], 'click', function() {
+					infoWindow.setContent(places[m].info);
+					infoWindow.open(map, this);
+					toggleBounce(places[m]);
+				});
+			})(m);
+
+		};
+
 	}
 
 	function delMarker(id) {
 		console.log("Make marker " +id+ " invisible");
-		markers[id].setVisible(false);
-		console.log(markers[id].getVisible());
-		markers[id].setMap(map);
+		places[id].setVisible(false);
+		console.log(places[id].getVisible());
+		places[id].setMap(map);
+	}
+
+	function showMarker(id) {
+		places[id].setVisible(true);
+		places[id].setMap(map);
+	}
+
+	function toggleBounce(marker) {
+		console.log(marker);
+		if (marker.getAnimation() !== null) {
+			marker.setAnimation(null);
+		} else {
+			marker.setAnimation(google.maps.Animation.BOUNCE);
+		}
 	}
 
 	var viewModel = function() {
@@ -118,7 +152,10 @@
 			self.placeArray([]);
 			for(var x in PlaceData) {
 				if(PlaceData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0)
+				{
 					self.placeArray.push(PlaceData[x]);
+					showMarker(x);
+				}
 				else delMarker(x);
 			}
 		};
@@ -129,22 +166,15 @@
 			var myLatLng = new google.maps.LatLng(self.place().lat, self.place().lng);
 			var newCenter = new google.maps.LatLng(self.place().lat, self.place().lng);
 			map.panTo(newCenter);
-			marker.addListener('click', toggleBounce);
-
-			function toggleBounce() {
-				if (marker.getAnimation() !== null) {
-					marker.setAnimation(null);
-				} else {
-					marker.setAnimation(google.maps.Animation.BOUNCE);
-				}
+			for (var i=0; i<places.length; i++) {
+				if(places[i].getTitle() === self.place().name) toggleBounce(places[i]);
 			}
 
-			marker.setMap(map);
 		};
 
 	};
 	//Calls the initializeMap() function when the page loads
-	window.addEventListener('load', initMap);
+	// window.addEventListener('load', initMap);
 
 	// Let's get this started
 	ko.applyBindings(new viewModel());
