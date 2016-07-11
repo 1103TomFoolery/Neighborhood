@@ -1,51 +1,58 @@
 	var PlaceData = [
 		{	name: "NuLife Yoga",
 			description: "Yoga Studio",
-			lat: "37.324167",
-			lng: "-121.920274",
-			address: "25 Dana Avenue, San Jose, CA 95126"
+			lat: "37.324228",
+			lng: "-121.920293",
+			address: "25 Dana Avenue, San Jose, CA 95126",
+			fourSqID: "4becc2bc8bbcc9283dcd8cb1"
 		},
 
 		{	name: "Rose Garden",
 			description: "Nice place to walk around",
 			lat: "37.3319",
 			lng: "-121.9286",
-			address: "Dana Avenue and Naglee Avenue, San Jose, CA 95126"
+			address: "Dana Avenue and Naglee Avenue, San Jose, CA 95126",
+			fourSqID: "49eb850cf964a520ef661fe3"
 		},
 
 		{	name: "Tee Nee Thai Restaurant",
 			description: "Cute place for Thai food",
-			lat: "37.333245",
-			lng: "-121.914273",
-			address: "1423 The Alameda, San Jose, CA 95126"
+			lat: "37.33331455029262",
+			lng: "-121.91420129861713",
+			address: "1423 The Alameda, San Jose, CA 95126",
+			fourSqID: "5430ba5b498e87553f3c72dc"
 		},
 
 		{	name: "Hoover Theater",
 			description: "Landmark theater in Hoover Middle School",
 			lat: "37.33261",
 			lng: "-121.92251",
-			address: "1635 Park Avenue, San Jose, CA 95126"
+			address: "1635 Park Avenue, San Jose, CA 95126",
+			fourSqID: "4b64f462f964a52018dc2ae3"
 		},
 
 		{	name: "White Shallot Restaurant",
 			description:  "One of our regular spots",
 			lat: "37.32336",
 			lng: "-121.95135",
-			address: "3143 Stevens Creek Blvd, San Jose, CA 95117"
+			address: "3143 Stevens Creek Blvd, San Jose, CA 95117",
+			fourSqID: "4aeb56dcf964a52025c121e3"
 		},
 
 		{	name: "The Red Stag",
 			description: "Classic dive bar",
 			lat: "37.3240527",
 			lng: "-121.9219497",
-			address: "1711 W San Carlos St, San Jose, CA 95128"
+			address: "1711 W San Carlos St, San Jose, CA 95128",
+			fourSqID: "4b1a0b90f964a52033e723e3"
 		},
 
 		{	name:  "Zanotto's Market",
 			description: "Neighborhood grocery store",
 			lat: "37.328218",
 			lng: "-121.931261",
-			address: "1970 Naglee Avenue, San Jose, CA 95126"
+			address: "1970 Naglee Avenue, San Jose, CA 95126",
+			fourSqID: "4a6f6779f964a52016d61fe3"
 		},
 
 		{
@@ -53,7 +60,8 @@
 			description: "Schurra's Fine Confections - Your Hometown Candy Store Since 1912. ",
 			lat: "37.331503",
 			lng: "-121.90634",
-			address: "840 The Alameda, San Jose, CA 95126"
+			address: "840 The Alameda, San Jose, CA 95126",
+			fourSqID: "4a8749b1f964a520a80320e3"
 		}
 
 	];
@@ -70,6 +78,7 @@
 			navigationControl: true,
 			mapTypeID: google.maps.MapTypeId.ROADMAP
 		};
+
 		map = new google.maps.Map(document.getElementById('map'), mapOptions);
 		addMarkers();
 		// for (m in PlaceData) {
@@ -81,28 +90,58 @@
 	// Create marker and add it to the global marker array
 	function addMarkers() {
 		var infoWindow = new google.maps.InfoWindow();
-		for (m in PlaceData) {
+		// OAuth stuff for Foursquare
+		var FourSquare_CLIENT_ID = 'WF5GQFL1SI3MI1LGFKKGJFJVGPMVSMATA1CBVGYXT4CF2ED0';
+		var FourSquare_CLIENT_SECRET = 'OMIQ0CV20ZZRKM1ENXZMKQJCECNQBBT2ONGPUHZ4TZK3LZHJ';
+		PlaceData.forEach(function(place){
+			// Foursquare api ajax request
+			$.ajax ({
+				type:  "GET",
+				dataType: "json",
+				url:'https://api.foursquare.com/v2/venues/explore',
+				data: 'limit=1&ll=' + place.lat + ',' + place.lng + '&query=' + place.name + '&client_id=' + FourSquare_CLIENT_ID + '&client_secret=' + FourSquare_CLIENT_SECRET + '&v=201408066&m=foursquare',
+				aync: true,
+				success: function(data) {
+					place.rating = data.response.group[0].items[0].venue.rating;
+					console.log(data.response.photo);
+					if (!place.rating){
+						place.rating = 'No Foursquare rating available';
+					}
+					marker.content = '<br><div class="labels">' + '<div class="title">' + place.title + '</div><div class="rating">Foursquare rating: ' + place.rating + '</div><p>' + place.description + '</p>' + '<a href=' + place.url + '>' + place.url + '</a>' +  '</div>';
+				},
+				error: function(data) {
+					// callback function if error - display alert 
+					alert("Could not load data from Foursquare");
+				}
+			});
+			// create markers
 			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(PlaceData[m].lat, PlaceData[m].lng),
+				position: new google.maps.LatLng(place.lat, place.lng),
 				map: map,
-				title: PlaceData[m].name,
+				title: place.name,
 				draggable: false,
 				animation: google.maps.Animation.DROP,
-				info: PlaceData[m].description,
+				info: place.description,
+				url: place.url,
+				rating: place.rating,
+				listClick: function(thisMarker){
+					infowindow.setContent(marker.content);
+					infowindow.open(map, thisMarker);
+				}
 			});
 //			marker.addListener('click', toggleBounce);
 			// google.maps.event.addListener(marker, 'click', toggleBounce);
 			places.push(marker);
 
-			(function (m) {
-				google.maps.event.addListener(places[m], 'click', function() {
-					infoWindow.setContent(places[m].info);
+			(function (place) {
+				google.maps.event.addListener(place, 'click', function() {
+					infoWindow.setContent(marker.content);
 					infoWindow.open(map, this);
-					toggleBounce(places[m]);
+					toggleBounce(place);
 				});
-			})(m);
+			})(place);
 
-		};
+		});
 
 	}
 
