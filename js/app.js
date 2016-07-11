@@ -102,7 +102,7 @@
 				data: 'limit=1&ll=' + place.lat + ',' + place.lng + '&query=' + place.name + '&client_id=' + FourSquare_CLIENT_ID + '&client_secret=' + FourSquare_CLIENT_SECRET + '&v=201408066&m=foursquare',
 				aync: true,
 				success: function(data) {
-					place.rating = data.response.group[0].items[0].venue.rating;
+					place.rating = data.response.groups[0].items[0].venue.rating;
 					console.log(data.response.photo);
 					if (!place.rating){
 						place.rating = 'No Foursquare rating available';
