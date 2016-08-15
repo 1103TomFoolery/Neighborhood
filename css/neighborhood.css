@@ -24,7 +24,7 @@ body {
 	width: 100%;
 }
 #map {
-	height: 100%;
+	height: calc(100% - 25px);
 }
 ul {
 	list-style-type: none;

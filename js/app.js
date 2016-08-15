@@ -67,7 +67,9 @@
 	];
 
 	var map;
+	var infoWindow;
 	var places = [];
+	var bounds;
 
 	function initMap() {
 		var mapOptions = {
@@ -80,6 +82,8 @@
 		};
 
 		map = new google.maps.Map(document.getElementById('map'), mapOptions);
+		infoWindow = new google.maps.InfoWindow();
+		bounds = new google.maps.LatLngBounds();
 		addMarkers();
 		// for (m in PlaceData) {
 		// 	var position = new google.maps.LatLng(PlaceData[m].lat, PlaceData[m].lng);
@@ -89,11 +93,12 @@
 
 	// Create marker and add it to the global marker array
 	function addMarkers() {
-		var infoWindow = new google.maps.InfoWindow();
+		
 		// OAuth stuff for Foursquare
 		var FourSquare_CLIENT_ID = 'WF5GQFL1SI3MI1LGFKKGJFJVGPMVSMATA1CBVGYXT4CF2ED0';
 		var FourSquare_CLIENT_SECRET = 'OMIQ0CV20ZZRKM1ENXZMKQJCECNQBBT2ONGPUHZ4TZK3LZHJ';
 		PlaceData.forEach(function(place){
+
 			// Foursquare api ajax request
 			$.ajax ({
 				type:  "GET",
@@ -103,11 +108,15 @@
 				aync: true,
 				success: function(data) {
 					place.rating = data.response.groups[0].items[0].venue.rating;
-					console.log(data.response.photo);
 					if (!place.rating){
 						place.rating = 'No Foursquare rating available';
 					}
-					marker.content = '<br><div class="labels">' + '<div class="title">' + place.title + '</div><div class="rating">Foursquare rating: ' + place.rating + '</div><p>' + place.description + '</p>' + '<a href=' + place.url + '>' + place.url + '</a>' +  '</div>';
+					place.likes = data.response.groups[0].items[0].tips[0].likes.count;
+					if (!place.likes) {
+						place.likes = 0;
+					}
+//					console.log(data);
+					marker.content = '<br><div class="labels">' + '<div class="title">' + place.name + '</div><div class="rating">Foursquare rating: ' + place.rating + '</div><p>' + place.description + '</p><div class="summary">Foursquare Likes: ' + place.likes + '</div>';
 				},
 				error: function(data) {
 					// callback function if error - display alert 
@@ -129,41 +138,28 @@
 					infowindow.open(map, thisMarker);
 				}
 			});
+
+			bounds.extend(marker.position);
 //			marker.addListener('click', toggleBounce);
 			// google.maps.event.addListener(marker, 'click', toggleBounce);
-			places.push(marker);
+			place.marker = marker;
 
-			(function (place) {
-				google.maps.event.addListener(place, 'click', function() {
-					infoWindow.setContent(marker.content);
-					infoWindow.open(map, this);
-					toggleBounce(place);
-				});
-			})(place);
+			google.maps.event.addListener(marker, 'click', function() {
+				infoWindow.setContent(marker.content);
+				infoWindow.open(map, this);
+				toggleBounce(marker);
+			});
 
 		});
+		map.fitBounds(bounds);
 
-	}
-
-	function delMarker(id) {
-		console.log("Make marker " +id+ " invisible");
-		places[id].setVisible(false);
-		console.log(places[id].getVisible());
-		places[id].setMap(map);
-	}
-
-	function showMarker(id) {
-		places[id].setVisible(true);
-		places[id].setMap(map);
 	}
 
 	function toggleBounce(marker) {
-		console.log(marker);
-		if (marker.getAnimation() !== null) {
+		marker.setAnimation(google.maps.Animation.BOUNCE);
+		window.setTimeout(function() {
 			marker.setAnimation(null);
-		} else {
-			marker.setAnimation(google.maps.Animation.BOUNCE);
-		}
+		}, 2100);
 	}
 
 	var viewModel = function() {
@@ -187,28 +183,25 @@
 		self.placeArray = ko.observableArray(PlaceData);
 		self.query = ko.observable('');
 		self.place = ko.observable('-');
-		search = function(value) {
+		self.search = function(value) {
 			self.placeArray([]);
 			for(var x in PlaceData) {
 				if(PlaceData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0)
 				{
 					self.placeArray.push(PlaceData[x]);
-					showMarker(x);
+					PlaceData[x].marker.setVisible(true);
 				}
-				else delMarker(x);
+				else PlaceData[x].marker.setVisible(false);
 			}
 		};
-		self.query.subscribe(search);
+		self.query.subscribe(self.search);
 
-		select = function(loc){
+		self.select = function(loc){
 			self.place(loc);
 			var myLatLng = new google.maps.LatLng(self.place().lat, self.place().lng);
 			var newCenter = new google.maps.LatLng(self.place().lat, self.place().lng);
 			map.panTo(newCenter);
-			for (var i=0; i<places.length; i++) {
-				if(places[i].getTitle() === self.place().name) toggleBounce(places[i]);
-			}
-
+			google.maps.event.trigger(loc.marker, 'click');
 		};
 
 	};
@@ -217,3 +210,7 @@
 
 	// Let's get this started
 	ko.applyBindings(new viewModel());
+
+	function googleError() {
+		alert('Google Failed');
+	}
