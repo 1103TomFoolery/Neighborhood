@@ -111,11 +111,10 @@
 					if (!place.rating){
 						place.rating = 'No Foursquare rating available';
 					}
-					place.likes = data.response.groups[0].items[0].tips[0].likes.count;
-					if (!place.likes) {
-						place.likes = 0;
-					}
-//					console.log(data);
+					var likes = data.response.groups[0].items[0].tips[0].likes;
+					var fallback = 'None';
+					place.likes = likes ? likes.count : fallback;
+					console.log(data);
 					marker.content = '<br><div class="labels">' + '<div class="title">' + place.name + '</div><div class="rating">Foursquare rating: ' + place.rating + '</div><p>' + place.description + '</p><div class="summary">Foursquare Likes: ' + place.likes + '</div>';
 				},
 				error: function(data) {
